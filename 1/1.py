@@ -94,7 +94,11 @@ def parse_html_files(start, end, sorted_field, output_file):
     
     
 def statistics(filename):
-    pass    
+    """Собирает статистику по числовым значениям"""
+    with open(filename, 'r', encoding='utf-8') as file:
+        data = json.loads(file)  
+        
+    
 
 # Запуск парсера
 if __name__ == "__main__":
