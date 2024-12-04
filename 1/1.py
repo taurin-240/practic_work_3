@@ -1,7 +1,7 @@
 import os
 import re
 import json
-from operator import itemgetter
+from collections import Counter
 from bs4 import BeautifulSoup
 
 #Для работы парсера, html файлы нужно сохранить в папку "1" в папке исполняемого файла
@@ -94,13 +94,37 @@ def parse_html_files(start, end, sorted_field, output_file):
     
     
 def statistics(filename):
+    statistic = {}
     """Собирает статистику по числовым значениям"""
     with open(filename, 'r', encoding='utf-8') as file:
-        data = json.loads(file)  
+        data = json.load(file)  
         
-    
+    # Получим максимальное значение поля views
+    max_views = max(data,key=lambda dictionary: dictionary['views'])['views']
+    statistic['max_views'] = max_views
+
+    # Получим сумму все просмотров зданий
+    summ_views = 0
+    for item_data in data:
+        summ_views += item_data['views']
+    statistic['sum_views'] = summ_views
+
+    # Получим среднее количество просмотров
+    avg_views = summ_views / len(data)
+    statistic['svg_views'] = avg_views
+
+    # Записываем результат в файл statistics.json
+    with open('statistics.json', 'w', encoding='utf-8') as file:
+        json.dump(statistic, file, ensure_ascii=False, indent=2)
+
+    # Частота городов
+    city_frequency = Counter(dictionary['city'] for dictionary in data)
+    city_frequency = [{city:count} for city,count in city_frequency.items()]
+    with open('city_frequency.json','w',encoding='utf-8') as file:
+        json.dump(city_frequency,file,ensure_ascii=False,indent=2)
 
 # Запуск парсера
 if __name__ == "__main__":
-    parse_html_files(2, 89,'old', 'result.json')
-    parse_html_files(2, 89,'city', 'result_sorted_city.json')
+    # parse_html_files(2, 89,'old', 'result.json')
+    # parse_html_files(2, 89,'city', 'result_sorted_city.json')
+    statistics('result.json')
